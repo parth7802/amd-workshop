@@ -3,18 +3,23 @@ import "@stdlib/deploy";
 contract CounterContract with Deployable {
 
     val: Int as uint32;
+    id: Int as uint32;
     
-    init() {
+
+
+    init(id: Int) {
+        self.id = id;
         self.val = 0;
     }
 
-    get fun counter(): Int
-    {
+    get fun counter():Int{
         return self.val;
     }
+    get fun id():Int{
+        return self.id;
+    }
 
-    receive("Increment")
-    {
+    receive("increment"){
         self.val = self.val + 1;
     }
 }

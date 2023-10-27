@@ -1,22 +1,20 @@
-import { Blockchain, SandboxContract, TreasuryContract } from '@ton-community/sandbox';
+import { Blockchain, SandboxContract, Treasury, TreasuryContract } from '@ton-community/sandbox';
 import { toNano } from 'ton-core';
 import { CounterContract } from '../wrappers/CounterContract';
 import '@ton-community/test-utils';
 
 describe('CounterContract', () => {
+    
     let blockchain: Blockchain;
-    let counterContract: SandboxContract<CounterContract>;
     let deployer: SandboxContract<TreasuryContract>;
-
+    let counterContract: SandboxContract<CounterContract>;
 
     beforeEach(async () => {
         blockchain = await Blockchain.create();
 
-        counterContract = blockchain.openContract(await CounterContract.fromInit());
+        counterContract = blockchain.openContract(await CounterContract.fromInit(12052002n));
 
-        deployer = await blockchain.treasury('deployer');
-
-        //const deployer = await blockchain.treasury('deployer');
+        deployer = await blockchain.treasury('deployer')
 
         const deployResult = await counterContract.send(
             deployer.getSender(),
@@ -42,22 +40,22 @@ describe('CounterContract', () => {
         // blockchain and counterContract are ready to use
     });
 
-    it('should increment', async () => 
-    {
-        const counterBefore = await counterContract.getCounter()
-        console.log("Counter Before : ", counterBefore)
-
+    it('should increment', async () => {
+        const counterBefore = await counterContract.getCounter();
+        console.log(`counterBefore: ${counterBefore}`);
+         
         await counterContract.send(
             deployer.getSender(),
             {
                 value: toNano('0.05'),
             },
-            "Increment"
-        );
+            "increment"
+        )
+        
+        const counterAfter = await counterContract.getCounter();
+        console.log(`counterAfter: ${counterAfter}`);
 
-        const counterAfter = await counterContract.getCounter()
-        console.log("counter After: ", counterAfter)
-
-        expect(counterBefore).toBeLessThan(counterAfter)
+        expect(counterBefore).toBeLessThan(counterAfter);
     });
+
 });
